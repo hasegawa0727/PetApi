@@ -1,5 +1,10 @@
 package com.example.demo.entity;
 
-public class Tag {
+import lombok.Data;
 
+
+@Data
+public class Tag {
+    private int id;
+    private String name;
 }

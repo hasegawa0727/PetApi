@@ -1,5 +1,11 @@
 package com.example.demo.entity;
 
-public class PhotoUrl {
+import lombok.Data;
 
+
+@Data
+public class PhotoUrl {
+    private int id;
+    private int petId;
+    private String url;
 }

@@ -1,5 +1,14 @@
 package com.example.demo.entity;
 
-public class Pet {
+import com.example.demo.enums.PetStatus;
 
+import lombok.Data;
+
+
+@Data
+public class Pet {
+    private int id;
+    private int categoryId;
+    private String name;
+    private PetStatus status;
 }
