@@ -49,5 +49,35 @@
 		WHERE pt.pet_id = #{petId}
 	</select>
 	
+	
+	<insert id="insertPet" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO pet(name, status, category_id) VALUES (#{pet.name}, #{pet.status}, #{pet.categoryId})
+	</insert>
+	
+	<select id="selectCategoryByName" resultType="com.example.demo.entity.Category">
+  		SELECT * FROM category WHERE name = #{name}
+	</select>
+	
+	<insert id="insertCategory" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO category(name) VALUES (#{category.name})
+	</insert>
+	
+	<insert id="insertPhotoUrl" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO photo_url(pet_id, url) VALUES (#{photoUrl.petId}, #{photoUrl.url})
+	</insert>
+	
+	<select id="selectTagByName" resultType="com.example.demo.entity.Tag">
+  		SELECT * FROM tag WHERE name = #{name}
+	</select>
+
+	<insert id="insertTag" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO tag(name) VALUES (#{tag.name})
+	</insert>
+	
+	<insert id="insertPetTag">
+  		INSERT INTO pet_tag(pet_id, tag_id)
+  		VALUES (#{petId}, #{tagId})
+	</insert>
+	
 
 </mapper>
