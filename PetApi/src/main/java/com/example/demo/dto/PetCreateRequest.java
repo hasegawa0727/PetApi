@@ -7,20 +7,20 @@ import lombok.Data;
 
 @Data
 public class PetCreateRequest {
-    private CategoryRequest category;
+    private CategoryCreateRequest category;
     private String name;
     private List<String> photoUrls;
-    private List<TagRequest> tags;
+    private List<TagCreateRequest> tags;
     
     
     @Data
-    public static class CategoryRequest {
+    public static class CategoryCreateRequest {
         private String name;
     }
     
     
     @Data
-    public static class TagRequest {
+    public static class TagCreateRequest {
         private String name;
     }
 }

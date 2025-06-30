@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.dto.PetCreateRequest;
-import com.example.demo.dto.PetCreateRequest.CategoryRequest;
-import com.example.demo.dto.PetCreateRequest.TagRequest;
+import com.example.demo.dto.PetCreateRequest.TagCreateRequest;
 import com.example.demo.dto.PetResponse;
+import com.example.demo.dto.PetUpdateRequest;
+import com.example.demo.dto.PetUpdateRequest.TagUpdateRequest;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.Pet;
 import com.example.demo.entity.PhotoUrl;
@@ -59,11 +62,41 @@ public class PetService {
         return petResponse;
         
     }
+    
+    
+    private int resolveCategoryId(String categoryName) {
+        Category existingCategory = petMapper.selectCategoryByName(categoryName);
+            
+            if(existingCategory != null) {
+                return existingCategory.getId();
+            } else {
+                Category newCategory = new Category();
+                newCategory.setName(categoryName);
+                petMapper.insertCategory(newCategory);
+                return newCategory.getId();
+            }
+    }
+    
+    private int resolveTagId(String tagName) {
+        Tag existingTag = petMapper.selectTagByName(tagName);
+        
+        if(existingTag != null) {
+            return existingTag.getId();
+        } else {
+            Tag newTag = new Tag();
+            newTag.setName(tagName);
+            petMapper.insertTag(newTag);
+            return newTag.getId();
+        }
+    }
 
 
     
     public PetResponse getPetById(int id) {
         Pet pet = petMapper.findById(id);
+        if(pet == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "指定されたIDのペットは存在しません。");
+        }
         return convertToPetResponse(pet);
     }
     
@@ -102,23 +135,12 @@ public class PetService {
         pet.setName(petCreateRequest.getName());
         pet.setStatus(PetStatus.valueOf("available"));
         
-        CategoryRequest category = petCreateRequest.getCategory();
-        Category existingCategory = petMapper.selectCategoryByName(category.getName());
-            
-            int categoryId;
-            if(existingCategory != null) {
-                categoryId = existingCategory.getId();
-            } else {
-                Category newCategory = new Category();
-                newCategory.setName(category.getName());
-                petMapper.insertCategory(newCategory);
-                categoryId = newCategory.getId();
-            }
-            
+        if(petCreateRequest.getCategory() != null) {
+            int categoryId = resolveCategoryId(petCreateRequest.getCategory().getName());
             pet.setCategoryId(categoryId);
+        }
         
         petMapper.insertPet(pet);
-        
         
         for(String url : petCreateRequest.getPhotoUrls()) {
             PhotoUrl photoUrl = new PhotoUrl();
@@ -127,21 +149,9 @@ public class PetService {
             petMapper.insertPhotoUrl(photoUrl);
         }
         
-        for(TagRequest tagRequest : petCreateRequest.getTags()) {
-            Tag existingTag = petMapper.selectTagByName(tagRequest.getName());
-            
-            int tagId;
-            if(existingTag != null) {
-                tagId = existingTag.getId();
-            } else {
-                Tag newTag = new Tag();
-                newTag.setName(tagRequest.getName());
-                petMapper.insertTag(newTag);
-                tagId = newTag.getId();
-            }
-            
+        for(TagCreateRequest tagCreateRequest : petCreateRequest.getTags()) {
+            int tagId = resolveTagId(tagCreateRequest.getName());
             petMapper.insertPetTag(pet.getId(), tagId);
-            
         }
         
         return convertToPetResponse(pet);
@@ -149,7 +159,61 @@ public class PetService {
     }
     
     
+    public PetResponse doUpdate(int id, PetUpdateRequest petUpdateRequest) {
+        Pet pet = petMapper.findById(id);
+        
+        if(pet == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "指定されたIDのペットは存在しません。");
+        }
+        
+        if(petUpdateRequest.getName() != null) {
+            pet.setName(petUpdateRequest.getName());
+        }
+        if(petUpdateRequest.getStatus() != null) {
+            pet.setStatus(petUpdateRequest.getStatus());
+        }
+        
+        pet.setId(id);
+        
+        if(petUpdateRequest.getCategory() != null) {
+            int categoryId = resolveCategoryId(petUpdateRequest.getCategory().getName());
+            pet.setCategoryId(categoryId);
+        }
+        
+        petMapper.updatePet(pet);
+        
+        if (petUpdateRequest.getPhotoUrls() != null) {
+            petMapper.deletePhotoUrl(id);
+
+            for (String url : petUpdateRequest.getPhotoUrls()) {
+                PhotoUrl photoUrl = new PhotoUrl();
+                photoUrl.setPetId(id);
+                photoUrl.setUrl(url);
+                petMapper.insertPhotoUrl(photoUrl);
+            }
+        }
+        
+        
+        if (petUpdateRequest.getTags() != null) {
+            petMapper.deletePetTag(id);
+
+            for (TagUpdateRequest tagUpdateRequest : petUpdateRequest.getTags()) {
+                int tagId = resolveTagId(tagUpdateRequest.getName());
+                petMapper.insertPetTag(pet.getId(), tagId);
+            }
+        }
+        
+        return convertToPetResponse(pet);
+        
+    }
+    
+    
     public void doDelete(int id) {
+        Pet pet = petMapper.findById(id);
+        if(pet == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "指定されたIDのペットは存在しません。");
+        }
+        
         petMapper.deletePetTag(id);
         petMapper.deletePhotoUrl(id);
         petMapper.deletePet(id);

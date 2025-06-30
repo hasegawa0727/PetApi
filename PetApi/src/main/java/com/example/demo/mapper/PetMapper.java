@@ -30,6 +30,12 @@ public interface PetMapper {
     int insertTag(@Param("tag") Tag tag);
     void insertPetTag(@Param("petId") int petId, @Param("tagId") int tagId);
     
+    int updatePet(@Param("pet") Pet pet);
+    int updateCategory(@Param("category") Category category);
+    int updatePhotoUrl(@Param("photoUrl") PhotoUrl photoUrl);
+    int updateTag(@Param("tag") Tag tag);
+    int updatePetTag(@Param("petId") int petId, @Param("tagId") int tagId);
+    
     void deletePet(int id);
     void deletePetTag(int id);
     void deletePhotoUrl(int id);

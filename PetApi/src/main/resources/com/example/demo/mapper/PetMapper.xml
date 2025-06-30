@@ -80,6 +80,23 @@
 	</insert>
 	
 	
+	<update id="updatePet">
+		UPDATE pet
+		SET name = #{pet.name},
+			status = #{pet.status},
+			category_id = #{pet.categoryId}
+		WHERE id = #{pet.id}
+	</update>
+	
+	
+	<update id="updatePhotoUrl">
+		UPDATE photo_url
+		SET pet_id = #{photoUrl.petId},
+			url = #{photoUrl.url}
+		WHERE pet_id = #{photpUrl.petId}
+	</update>
+	
+	
 	<delete id="deletePet">
 		DELETE FROM pet WHERE id = #{id}
 	</delete>
