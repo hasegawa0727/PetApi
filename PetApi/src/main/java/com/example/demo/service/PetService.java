@@ -147,4 +147,12 @@ public class PetService {
         return convertToPetResponse(pet);
             
     }
+    
+    
+    public void doDelete(int id) {
+        petMapper.deletePetTag(id);
+        petMapper.deletePhotoUrl(id);
+        petMapper.deletePet(id);
+        
+    }
 }

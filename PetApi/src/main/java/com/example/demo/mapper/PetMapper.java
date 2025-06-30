@@ -21,6 +21,7 @@ public interface PetMapper {
     List<Pet> findPetAll();
     List<Pet> findPetByStatus(String status);
     List<Pet> findPetByTag(String tag);
+    
     int insertPet(@Param("pet") Pet pet);
     Category selectCategoryByName(String name);
     int insertCategory(@Param("category") Category category);
@@ -28,4 +29,8 @@ public interface PetMapper {
     Tag selectTagByName(String name);
     int insertTag(@Param("tag") Tag tag);
     void insertPetTag(@Param("petId") int petId, @Param("tagId") int tagId);
+    
+    void deletePet(int id);
+    void deletePetTag(int id);
+    void deletePhotoUrl(int id);
 }
