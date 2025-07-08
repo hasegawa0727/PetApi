@@ -96,13 +96,6 @@ public class PetService {
     }
 
     public List<PetResponse> getPetList() {
-        // List<Pet> pets = petMapper.findPetAll();
-        // List<PetResponse> petResponses = new ArrayList<>();
-        // for(Pet pet : pets) {
-        // petResponses.add(convertToPetResponse(pet));
-        // }
-        // return petResponses;
-
         return petMapper.findPetAll()
                 .stream()
                 .peek(System.out::println)
