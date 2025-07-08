@@ -26,37 +26,39 @@ public class PetService {
     PetMapper petMapper;
 
     private PetResponse convertToPetResponse(Pet pet) {
-        PetResponse petResponse = new PetResponse();
-        petResponse.setId(pet.getId());
-        petResponse.setName(pet.getName());
-        petResponse.setStatus(pet.getStatus());
-
+        // カテゴリ情報を取得
         Category category = petMapper.findCategoryByPetId(pet.getId());
-        if (category != null) {
-            PetResponse.Category categoryDto = new PetResponse.Category();
-            categoryDto.setId(category.getId());
-            categoryDto.setName(category.getName());
-            petResponse.setCategory(categoryDto);
-        }
 
+        // 写真URLリストを取得
         List<PhotoUrl> photoUrls = petMapper.findPhotoUrlByPetId(pet.getId());
         List<String> urls = photoUrls.stream()
-                .map(photoUrl -> photoUrl.getUrl())
+                .map(PhotoUrl::getUrl)
                 .toList();
-        petResponse.setPhotoUrls(urls);
 
+        // タグリストを取得
         List<Tag> tags = petMapper.findTagByPetId(pet.getId());
-        List<PetResponse.Tag> tagDtos = new ArrayList<>();
-        for (Tag tag : tags) {
-            PetResponse.Tag tagDto = new PetResponse.Tag();
-            tagDto.setId(tag.getId());
-            tagDto.setName(tag.getName());
-            tagDtos.add(tagDto);
+        List<PetResponse.Tag> tagDtos = tags.stream()
+                .map(tag -> new PetResponse.Tag()
+                        .setId(tag.getId())
+                        .setName(tag.getName()))
+                .toList();
+
+        // チェーンセッターを使用してPetResponseを構築
+        PetResponse petResponse = new PetResponse()
+                .setId(pet.getId())
+                .setName(pet.getName())
+                .setStatus(pet.getStatus())
+                .setPhotoUrls(urls)
+                .setTags(tagDtos);
+
+        // カテゴリが存在する場合のみ設定
+        if (category != null) {
+            petResponse.setCategory(new PetResponse.Category()
+                    .setId(category.getId())
+                    .setName(category.getName()));
         }
-        petResponse.setTags(tagDtos);
 
         return petResponse;
-
     }
 
     private int resolveCategoryId(String categoryName) {
@@ -94,12 +96,18 @@ public class PetService {
     }
 
     public List<PetResponse> getPetList() {
-        List<Pet> pets = petMapper.findPetAll();
-        List<PetResponse> petResponses = new ArrayList<>();
-        for (Pet pet : pets) {
-            petResponses.add(convertToPetResponse(pet));
-        }
-        return petResponses;
+        // List<Pet> pets = petMapper.findPetAll();
+        // List<PetResponse> petResponses = new ArrayList<>();
+        // for(Pet pet : pets) {
+        // petResponses.add(convertToPetResponse(pet));
+        // }
+        // return petResponses;
+
+        return petMapper.findPetAll()
+                .stream()
+                .peek(System.out::println)
+                .map(this::convertToPetResponse)
+                .toList();
     }
 
     public List<PetResponse> getPetByStatus(String status) {
