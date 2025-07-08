@@ -98,7 +98,6 @@ public class PetService {
     public List<PetResponse> getPetList() {
         return petMapper.findPetAll()
                 .stream()
-                .peek(System.out::println)
                 .map(this::convertToPetResponse)
                 .toList();
     }
