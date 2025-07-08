@@ -6,7 +6,6 @@ import com.example.demo.enums.PetStatus;
 
 import lombok.Data;
 
-
 @Data
 public class PetResponse {
     private int id;
@@ -15,15 +14,13 @@ public class PetResponse {
     private List<String> photoUrls;
     private List<Tag> tags;
     private PetStatus status;
-    
-    
+
     @Data
     public static class Category {
         private int id;
         private String name;
     }
-    
-    
+
     @Data
     public static class Tag {
         private int id;
